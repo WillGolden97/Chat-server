@@ -3,10 +3,11 @@
  * To change this template file, choose Tools | Templates
  * and open the template in the editor.
  */
-package Model.Dao;
+package Model.DAO;
 
 import ConnectionFactory.ConnectionFactory;
-import Model.Bean.Contato;
+import Model.bean.Contact;
+
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
@@ -20,28 +21,28 @@ import java.util.logging.Logger;
  *
  * @author William
  */
-public class contatosListDAO {
+public class contactsListDAO {
     
-    public List<Contato> read(String nickName) {
+    public List<Contact> read(String nickName) {
         
         Connection con = ConnectionFactory.getConnection();
 
         PreparedStatement stmt;
         ResultSet rs;
-        List<Contato> Contatos = new ArrayList<>();
+        List<Contact> Contatos = new ArrayList<>();
         try {
             stmt = con.prepareStatement("call contatos('"+nickName+"')");
             rs = stmt.executeQuery();
             while (rs.next()) {
-                Contato c = new Contato();
+                Contact c = new Contact();
                 c.setNickName(rs.getString("nickNameContato"));
                 c.setNome(rs.getString("contato"));
                 c.setUltimaMsg(rs.getString("Messages"));
-                c.setData(rs.getString("Data"));
+                c.setDate(rs.getString("Date"));
                 Contatos.add(c);
             }
         } catch (SQLException ex) {
-            Logger.getLogger(contatosListDAO.class.getName()).log(Level.SEVERE, null, ex);
+            Logger.getLogger(contactsListDAO.class.getName()).log(Level.SEVERE, null, ex);
         }
         return Contatos;
     }

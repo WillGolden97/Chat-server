@@ -13,7 +13,7 @@ import java.util.Map;
  *
  * @author elder
  */
-public class Messages implements Serializable {
+public class Communication implements Serializable {
 
     private String operation;
     private Status status;
@@ -23,12 +23,12 @@ public class Messages implements Serializable {
      */
     Map<String, Object> params;
 
-    public Messages(String operacao) {
+    public Communication(String operacao) {
         this.operation = operacao;
         params = new HashMap<>();
     }
 
-    public Messages() {
+    public Communication() {
         params = new HashMap<>();
     }
 

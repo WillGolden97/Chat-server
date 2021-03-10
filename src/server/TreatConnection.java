@@ -6,15 +6,18 @@
 package server;
 
 import ConnectionFactory.ServerS;
-import Model.Dao.contatosListDAO;
+import Model.DAO.contactsListDAO;
+import Model.DAO.messagesDAO;
+import Model.bean.Message;
 import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.net.Socket;
+import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import javax.swing.JOptionPane;
-import util.Messages;
+import util.Communication;
 import util.States;
 
 /**
@@ -32,7 +35,8 @@ public class TreatConnection implements Runnable {
     }
 
     private void treatConnection(Socket socket) throws IOException, ClassNotFoundException {
-        contatosListDAO cDAO = new contatosListDAO();
+        contactsListDAO cDAO = new contactsListDAO();
+        messagesDAO mDAO = new messagesDAO();
         try {
 
             ObjectOutputStream outPut = new ObjectOutputStream(socket.getOutputStream());
@@ -41,14 +45,18 @@ public class TreatConnection implements Runnable {
             System.out.println("Tratando...");
             States states = States.CONNECTED;
 
-            Messages message = (Messages) input.readObject();
-            String operation = message.getOperation();
+            Communication communication = (Communication) input.readObject();
+            String operation = communication.getOperation();
             try {
                 switch (states) {
                     case CONNECTED:
                         switch (operation) {
                             case "READ":
-                                message.setParam("READREPLY", cDAO.read((String) message.getParam("nickName")));
+                                communication.setParam("READREPLY", cDAO.read((String) communication.getParam("nickName")));
+                                break;
+                            case "MESSAGE":
+                                List<Message> message = mDAO.read((String) communication.getParam("nickName"), (String) communication.getParam("contactNickName"));
+                                communication.setParam("MESSAGEREPLY",message);
                                 break;
                         }
                 }
@@ -57,7 +65,7 @@ public class TreatConnection implements Runnable {
             }
 //            System.out.println("Mensagem recebida ...\n" + message.getParam("message"));
 //            message.setParam("message", JOptionPane.showInputDialog(null, "Envie mensagem para o cliente:"));
-            outPut.writeObject(message);
+            outPut.writeObject(communication);
             outPut.flush();
             input.close();
             outPut.close();
