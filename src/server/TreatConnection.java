@@ -58,6 +58,10 @@ public class TreatConnection implements Runnable {
                                 List<Message> message = mDAO.read((String) communication.getParam("nickName"), (String) communication.getParam("contactNickName"));
                                 communication.setParam("MESSAGEREPLY",message);
                                 break;
+                            case "CREATEMESSAGE":
+                                mDAO.create((Message) communication.getParam("SENDEDMESSAGE"));
+                                communication.setParam("STATUSMESSAGE",mDAO.getStatus());
+                                break;                                
                         }
                 }
             } catch (NullPointerException ex) {

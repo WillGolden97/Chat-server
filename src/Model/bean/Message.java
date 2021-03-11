@@ -12,9 +12,28 @@ import java.io.Serializable;
  * @author William
  */
 public class Message implements Serializable {
+
     private String message;
-    private String contactName;
+    private String To;
+    private String from;
     private String date;
+
+    public Message(String message, String From, String To) {
+        this.message = message;
+        this.from = From;
+        this.To = To;
+    }
+
+    public Message() {
+    }
+
+    public String getFrom() {
+        return from;
+    }
+
+    public void setFrom(String nickNameFrom) {
+        this.from = nickNameFrom;
+    }
 
     public String getDate() {
         return date;
@@ -32,12 +51,12 @@ public class Message implements Serializable {
         this.message = message;
     }
 
-    public String getContactName() {
-        return contactName;
+    public String getTo() {
+        return To;
     }
 
-    public void setContactName(String contactName) {
-        this.contactName = contactName;
+    public void setTo(String contactName) {
+        this.To = contactName;
     }
 
 }
