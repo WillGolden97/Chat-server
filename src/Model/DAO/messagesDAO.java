@@ -39,7 +39,7 @@ public class messagesDAO {
         ResultSet rs;
         List<Message> Messages = new ArrayList<>();
         try {
-            stmt = con.prepareStatement("SELECT *, DATE_FORMAT(messages.date, '%d/%m/%Y %H:%i') as HourMsg From messages WHERE messages.MsgFrom = '"+contactNickName+"' AND Messages.MsgTo = '"+nickName+"' OR messages.MsgFrom = '"+nickName+"' AND Messages.MsgTo = '"+contactNickName+"' ORDER BY DATE_FORMAT(messages.date, '%d/%m/%Y %H:%i') ASC ");
+            stmt = con.prepareStatement("SELECT *, DATE_FORMAT(messages.date, '%H:%i') as HourMsg From messages WHERE messages.MsgFrom = '"+contactNickName+"' AND Messages.MsgTo = '"+nickName+"' OR messages.MsgFrom = '"+nickName+"' AND Messages.MsgTo = '"+contactNickName+"' ORDER BY DATE_FORMAT(messages.date, '%d/%m/%Y %H:%i:%s') ASC ");
             rs = stmt.executeQuery();
             while (rs.next()) {
                 Message m = new Message();
