@@ -7,11 +7,12 @@ package Model.bean;
 
 import java.io.Serializable;
 
+
 /**
  *
  * @author William
  */
-public class Message implements Serializable {
+public class Message extends Arquivos implements Serializable{
 
     private String message;
     private String To;
