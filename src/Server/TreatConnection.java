@@ -26,10 +26,10 @@ import util.States;
  * @author William
  */
 public class TreatConnection implements Runnable {
-    
-    private final Socket socket;   
 
-    public TreatConnection(Socket socket, Server server)  {
+    private final Socket socket;
+
+    public TreatConnection(Socket socket, Server server) {
         this.socket = socket;
     }
 
@@ -104,6 +104,21 @@ public class TreatConnection implements Runnable {
                 communication.setParam("CHECKFILEREPLY", arqDAO.checkFile((String) communication.getParam("nomeHash")));
                 System.out.print("count " + arqDAO.checkFile((String) communication.getParam("nomeHash")));
                 break;
+            case "CHECKCLIENT":
+                communication.setParam("CHECKCLIENTREPLY", cliDAO.checkClient((String) communication.getParam("nickName")));
+                System.out.print("count " + cliDAO.checkClient((String) communication.getParam("nickName")));
+                break;
+            case "CREATEACCOUNT":
+                byte[] picture = (byte[]) communication.getParam("picture");
+                String format = (String) communication.getParam("format");
+                String name = (String) communication.getParam("name");
+                String nickName = (String) communication.getParam("nickName");
+                String password = (String) communication.getParam("password");
+                communication.setParam("CREATEACCOUNTREPLY",cliDAO.createAccount(picture,format,name,nickName,password));
+                break;
+            case "PROFILEIMAGE":
+                communication.setParam("PROFILEIMAGEREPLY", cliDAO.profilePic((String) communication.getParam("nickName")));
+                break;
             default:
                 break;
         }
@@ -119,7 +134,7 @@ public class TreatConnection implements Runnable {
     @Override
     public void run() {
         try {
-            System.out.println("Iniciando thread do cliente +" +socket.getInetAddress());            
+            System.out.println("Iniciando thread do cliente +" + socket.getInetAddress());
             treatConnection(socket);
         } catch (IOException ex) {
             Logger.getLogger(TreatConnection.class.getName()).log(Level.SEVERE, null, ex);

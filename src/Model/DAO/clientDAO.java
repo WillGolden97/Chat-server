@@ -6,6 +6,7 @@
 package Model.DAO;
 
 import ConnectionFactory.ConnectionFactory;
+import Model.bean.ProfilePic;
 import com.mysql.jdbc.exceptions.MySQLSyntaxErrorException;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
@@ -27,12 +28,12 @@ public class clientDAO {
         ResultSet rs;
         try {
             stmt = con.prepareStatement("SELECT count(nickName) as result FROM clientes WHERE nickName='" + nickName + "' AND senha = '" + password + "'");
-            rs = stmt.executeQuery();       
+            rs = stmt.executeQuery();
             while (rs.next()) {
                 if (rs.getInt("result") == 1) {
                     reply = "OK";
                     System.out.println("Autenticado");
-                } 
+                }
             }
         } catch (MySQLSyntaxErrorException ex) {
             Logger.getLogger(contactsListDAO.class.getName()).log(Level.SEVERE, null, ex);
@@ -40,5 +41,74 @@ public class clientDAO {
             Logger.getLogger(contactsListDAO.class.getName()).log(Level.SEVERE, null, ex);
         }
         return reply;
+    }
+
+    public int checkClient(String nickName) {
+        Connection con = ConnectionFactory.getConnection();
+        PreparedStatement stmt;
+        ResultSet rs;
+        int count = 1;
+        try {
+            stmt = con.prepareStatement("SELECT COUNT(clientes.nickName) AS checkNickName  FROM clientes WHERE clientes.nickName LIKE '" + nickName + "'");
+            rs = stmt.executeQuery();
+            while (rs.next()) {
+                count = rs.getInt("checkNickName");
+            }
+        } catch (SQLException ex) {
+            Logger.getLogger(contactsListDAO.class.getName()).log(Level.SEVERE, null, ex);
+        }
+        return count;
+    }
+
+    public String createAccount(byte[] picture, String format, String name, String nickName, String password) {
+        String reply;
+        Connection con = ConnectionFactory.getConnection();
+        PreparedStatement stmt;
+        try {
+            stmt = con.prepareStatement("INSERT INTO clientes (clientes.nomeCliente,clientes.nickName,clientes.senha) VALUES (?,?,?)");
+            stmt.setString(1, name);
+            stmt.setString(2, nickName);
+            stmt.setString(3, password);
+            stmt.executeUpdate();
+            reply = "OK";
+        } catch (NullPointerException ex) {
+            reply = ex.toString();
+        } catch (MySQLSyntaxErrorException ex) {
+            reply = ex.toString();
+            Logger.getLogger(contactsListDAO.class.getName()).log(Level.SEVERE, null, ex);
+        } catch (SQLException ex) {
+            reply = ex.toString();
+            Logger.getLogger(contactsListDAO.class.getName()).log(Level.SEVERE, null, ex);
+        }
+        try {
+            stmt = con.prepareStatement("INSERT INTO profilepicture (profilepicture.clienteId,profilepicture.picture,profilepicture.format) VALUES (?,?,?)");
+            stmt.setString(1, nickName);
+            stmt.setBytes(2, picture);
+            stmt.setString(3, format);
+            stmt.executeUpdate();
+        } catch (SQLException ex) {
+            Logger.getLogger(clientDAO.class.getName()).log(Level.SEVERE, null, ex);
+        } catch ( NullPointerException ex) {
+            System.out.print("Sem envio de imagem");
+        }
+        return reply;
+    }
+
+    public ProfilePic profilePic(String nickName) {
+        Connection con = ConnectionFactory.getConnection();
+        PreparedStatement stmt;
+        ResultSet rs;
+        ProfilePic profilePic = new ProfilePic();
+        try {
+            stmt = con.prepareStatement("SELECT * FROM `profilepicture` INNER JOIN clientes on clientes.nickName = profilepicture.clienteId WHERE clientes.nickName LIKE '" + nickName + "'");
+            rs = stmt.executeQuery();
+            while (rs.next()) {
+                profilePic.setPicture(rs.getBytes("picture"));
+                profilePic.setFormat(rs.getString("format"));
+            }
+        } catch (SQLException ex) {
+            Logger.getLogger(contactsListDAO.class.getName()).log(Level.SEVERE, null, ex);
+        }
+        return profilePic;
     }
 }
