@@ -24,8 +24,8 @@ public class clientDAO {
     public String authenticated(String nickName, String password) {
         String reply = "Nickname ou senha errada!";
         Connection con = ConnectionFactory.getConnection();
-        PreparedStatement stmt;
-        ResultSet rs;
+        PreparedStatement stmt = null;
+        ResultSet rs = null;
         try {
             stmt = con.prepareStatement("SELECT count(nickName) as result FROM clientes WHERE nickName='" + nickName + "' AND senha = '" + password + "'");
             rs = stmt.executeQuery();
@@ -39,13 +39,15 @@ public class clientDAO {
             Logger.getLogger(contactsListDAO.class.getName()).log(Level.SEVERE, null, ex);
         } catch (SQLException ex) {
             Logger.getLogger(contactsListDAO.class.getName()).log(Level.SEVERE, null, ex);
+        } finally {
+            ConnectionFactory.closeConnection(con, stmt, rs);
         }
         return reply;
     }
 
     public int checkClient(String nickName) {
         Connection con = ConnectionFactory.getConnection();
-        PreparedStatement stmt;
+        PreparedStatement stmt = null;
         ResultSet rs;
         int count = 1;
         try {
@@ -56,6 +58,8 @@ public class clientDAO {
             }
         } catch (SQLException ex) {
             Logger.getLogger(contactsListDAO.class.getName()).log(Level.SEVERE, null, ex);
+        } finally {
+            ConnectionFactory.closeConnection(con, stmt);
         }
         return count;
     }
@@ -63,7 +67,7 @@ public class clientDAO {
     public String createAccount(byte[] picture, String format, String name, String nickName, String password) {
         String reply;
         Connection con = ConnectionFactory.getConnection();
-        PreparedStatement stmt;
+        PreparedStatement stmt = null;
         try {
             stmt = con.prepareStatement("INSERT INTO clientes (clientes.nomeCliente,clientes.nickName,clientes.senha) VALUES (?,?,?)");
             stmt.setString(1, name);
@@ -79,6 +83,8 @@ public class clientDAO {
         } catch (SQLException ex) {
             reply = ex.toString();
             Logger.getLogger(contactsListDAO.class.getName()).log(Level.SEVERE, null, ex);
+        } finally {
+            ConnectionFactory.closeConnection(con, stmt);
         }
         try {
             stmt = con.prepareStatement("INSERT INTO profilepicture (profilepicture.clienteId,profilepicture.picture,profilepicture.format) VALUES (?,?,?)");
@@ -88,16 +94,18 @@ public class clientDAO {
             stmt.executeUpdate();
         } catch (SQLException ex) {
             Logger.getLogger(clientDAO.class.getName()).log(Level.SEVERE, null, ex);
-        } catch ( NullPointerException ex) {
+        } catch (NullPointerException ex) {
             System.out.print("Sem envio de imagem");
+        } finally {
+            ConnectionFactory.closeConnection(con);
         }
         return reply;
     }
 
     public ProfilePic profilePic(String nickName) {
         Connection con = ConnectionFactory.getConnection();
-        PreparedStatement stmt;
-        ResultSet rs;
+        PreparedStatement stmt = null;
+        ResultSet rs = null;
         ProfilePic profilePic = new ProfilePic();
         try {
             stmt = con.prepareStatement("SELECT * FROM `profilepicture` INNER JOIN clientes on clientes.nickName = profilepicture.clienteId WHERE clientes.nickName LIKE '" + nickName + "'");
@@ -108,6 +116,8 @@ public class clientDAO {
             }
         } catch (SQLException ex) {
             Logger.getLogger(contactsListDAO.class.getName()).log(Level.SEVERE, null, ex);
+        } finally {
+            ConnectionFactory.closeConnection(con, stmt, rs);
         }
         return profilePic;
     }

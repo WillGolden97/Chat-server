@@ -136,9 +136,7 @@ public class TreatConnection implements Runnable {
         try {
             System.out.println("Iniciando thread do cliente +" + socket.getInetAddress());
             treatConnection(socket);
-        } catch (IOException ex) {
-            Logger.getLogger(TreatConnection.class.getName()).log(Level.SEVERE, null, ex);
-        } catch (ClassNotFoundException ex) {
+        } catch (IOException | ClassNotFoundException ex) {
             Logger.getLogger(TreatConnection.class.getName()).log(Level.SEVERE, null, ex);
         }
     }

@@ -22,16 +22,16 @@ import java.util.logging.Logger;
  * @author William
  */
 public class contactsListDAO {
-    
+
     public List<Contact> read(String nickName) {
-        
+
         Connection con = ConnectionFactory.getConnection();
 
-        PreparedStatement stmt;
-        ResultSet rs;
+        PreparedStatement stmt = null;
+        ResultSet rs = null;
         List<Contact> Contatos = new ArrayList<>();
         try {
-            stmt = con.prepareStatement("call contatos('"+nickName+"')");
+            stmt = con.prepareStatement("call contatos('" + nickName + "')");
             rs = stmt.executeQuery();
             while (rs.next()) {
                 Contact c = new Contact();
@@ -43,6 +43,8 @@ public class contactsListDAO {
             }
         } catch (SQLException ex) {
             Logger.getLogger(contactsListDAO.class.getName()).log(Level.SEVERE, null, ex);
+        } finally {
+            ConnectionFactory.closeConnection(con,stmt,rs);
         }
         return Contatos;
     }

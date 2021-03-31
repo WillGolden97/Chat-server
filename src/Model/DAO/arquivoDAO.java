@@ -21,42 +21,46 @@ import java.util.logging.Logger;
 public class arquivoDAO {
 
     public Arquivos read(String nomeHash) {
-        
+
         Connection con = ConnectionFactory.getConnection();
 
-        PreparedStatement stmt;
-        ResultSet rs;
+        PreparedStatement stmt = null;
+        ResultSet rs = null;
         Arquivos arquivo = new Arquivos();
         try {
-            stmt = con.prepareStatement("SELECT * FROM `arquivos` WHERE nomeHash = '"+nomeHash+"'");
+            stmt = con.prepareStatement("SELECT * FROM `arquivos` WHERE nomeHash = '" + nomeHash + "'");
             rs = stmt.executeQuery();
             while (rs.next()) {
                 arquivo.setNomeArquivo(rs.getString("nome"));
-                arquivo.setHashArquivo(rs.getString("nomeHash"));  
-                arquivo.setArquivo(rs.getBytes("arquivo"));                
+                arquivo.setHashArquivo(rs.getString("nomeHash"));
+                arquivo.setArquivo(rs.getBytes("arquivo"));
             }
         } catch (SQLException ex) {
             Logger.getLogger(contactsListDAO.class.getName()).log(Level.SEVERE, null, ex);
+        }  finally {
+            ConnectionFactory.closeConnection(con,stmt,rs);
         }
         return arquivo;
     }
-    
-    public int checkFile (String nomeHash) {
-        
+
+    public int checkFile(String nomeHash) {
+
         Connection con = ConnectionFactory.getConnection();
 
-        PreparedStatement stmt;
-        ResultSet rs;
+        PreparedStatement stmt = null;
+        ResultSet rs = null;
         int count = 0;
         try {
-            stmt = con.prepareStatement("SELECT COUNT(nomeHash) as checkHash FROM `arquivos` WHERE nomeHash = '"+nomeHash+"'");
+            stmt = con.prepareStatement("SELECT COUNT(nomeHash) as checkHash FROM `arquivos` WHERE nomeHash = '" + nomeHash + "'");
             rs = stmt.executeQuery();
             while (rs.next()) {
-               count = rs.getInt("checkHash");             
+                count = rs.getInt("checkHash");
             }
         } catch (SQLException ex) {
             Logger.getLogger(contactsListDAO.class.getName()).log(Level.SEVERE, null, ex);
+        } finally {
+            ConnectionFactory.closeConnection(con,stmt,rs);
         }
         return count;
-    }    
+    }
 }

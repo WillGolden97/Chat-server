@@ -36,7 +36,7 @@ public class messagesDAO {
 
         Connection con = ConnectionFactory.getConnection();
 
-        PreparedStatement stmt;
+        PreparedStatement stmt = null;
         ResultSet rs;
         List<Message> Messages = new ArrayList<>();
         try {
@@ -53,13 +53,15 @@ public class messagesDAO {
             }
         } catch (SQLException ex) {
             Logger.getLogger(contactsListDAO.class.getName()).log(Level.SEVERE, null, ex);
+        }  finally {
+            ConnectionFactory.closeConnection(con,stmt);
         }
         return Messages;
     }
 
     public void create(Message m) {
         Connection con = ConnectionFactory.getConnection();
-        PreparedStatement stmt;
+        PreparedStatement stmt = null;
 
         try {
             stmt = con.prepareStatement("INSERT into messages (messages,messages.MsgFrom,messages.MsgTo) VALUES (?,?,?)");
@@ -70,6 +72,8 @@ public class messagesDAO {
         } catch (SQLException ex) {
             Logger.getLogger(contactsListDAO.class.getName()).log(Level.SEVERE, null, ex);
             setStatus(ex.toString());
+        }  finally {
+            ConnectionFactory.closeConnection(con,stmt);
         }
 
         try {
@@ -81,6 +85,8 @@ public class messagesDAO {
             setStatus("Mensagem enviada com sucesso mensagem e seus respectivo anexo");
         } catch (SQLException | NullPointerException ex) {
             System.out.print(ex);
+        }  finally {
+            ConnectionFactory.closeConnection(con,stmt);
         }
         try {
             stmt = con.prepareStatement("INSERT into anexo (arquivo,mensagem) VALUES (?,?)");
@@ -90,14 +96,16 @@ public class messagesDAO {
             setStatus("Mensagem enviada com sucesso mensagem e seus respectivo anexado");
         } catch (SQLException | NullPointerException ex) {
             System.out.print(ex);
+        } finally {
+            ConnectionFactory.closeConnection(con,stmt);
         }
 
     }
 
     public int lastMessageId(String nickName) {
         Connection con = ConnectionFactory.getConnection();
-        PreparedStatement stmt;
-        ResultSet rs;
+        PreparedStatement stmt = null;
+        ResultSet rs = null;
         int id = 0;
         try {
             stmt = con.prepareStatement("SELECT Idmessage FROM messages WHERE Messages.MsgFrom = '" + nickName + "' ORDER BY Messages.Date DESC limit 1");
@@ -108,6 +116,8 @@ public class messagesDAO {
             }
         } catch (SQLException ex) {
             Logger.getLogger(messagesDAO.class.getName()).log(Level.SEVERE, null, ex);
+        } finally {
+            ConnectionFactory.closeConnection(con,stmt,rs);
         }
         return id;
     }
