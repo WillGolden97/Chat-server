@@ -28,7 +28,7 @@ public class arquivoDAO {
         ResultSet rs = null;
         Arquivos arquivo = new Arquivos();
         try {
-            stmt = con.prepareStatement("SELECT * FROM `arquivos` WHERE nomeHash = '" + nomeHash + "'");
+            stmt = con.prepareStatement("SELECT * FROM `arquivos` INNER JOIN anexo on anexo.arquivo = arquivos.nomeHash WHERE nomeHash = '" + nomeHash + "'");
             rs = stmt.executeQuery();
             while (rs.next()) {
                 arquivo.setNomeArquivo(rs.getString("nome"));

@@ -14,6 +14,7 @@ import java.io.Serializable;
  */
 public class Message extends Arquivos implements Serializable{
 
+    private int idMessage;
     private String message;
     private String To;
     private String from;
@@ -28,6 +29,15 @@ public class Message extends Arquivos implements Serializable{
     public Message() {
     }
 
+    public int getIdMessage() {
+        return idMessage;
+    }
+
+    public void setIdMessage(int idMessage) {
+        this.idMessage = idMessage;
+    }
+
+    
     public String getFrom() {
         return from;
     }

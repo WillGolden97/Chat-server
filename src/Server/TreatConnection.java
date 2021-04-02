@@ -13,7 +13,6 @@ import Model.bean.Message;
 import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
-import java.net.ServerSocket;
 import java.net.Socket;
 import java.util.List;
 import java.util.logging.Level;
@@ -77,6 +76,7 @@ public class TreatConnection implements Runnable {
         messagesDAO mDAO = new messagesDAO();
         clientDAO cliDAO = new clientDAO();
         arquivoDAO arqDAO = new arquivoDAO();
+        contactsListDAO contactDAO = new contactsListDAO();
         Communication comunic;
 
         switch (op) {
@@ -97,6 +97,10 @@ public class TreatConnection implements Runnable {
                 mDAO.create((Message) communication.getParam("SENDEDMESSAGE"));
                 communication.setParam("STATUSMESSAGE", mDAO.getStatus());
                 break;
+            case "DELETEMESSAGE":
+                mDAO.delete((int) communication.getParam("idMessage"));
+                communication.setParam("STATUSMESSAGE", mDAO.getStatus());
+                break;
             case "DOWNLOADFILE":
                 communication.setParam("DOWNLOADFILEREPLY", arqDAO.read((String) communication.getParam("nomeHash")));
                 break;
@@ -106,7 +110,12 @@ public class TreatConnection implements Runnable {
                 break;
             case "CHECKCLIENT":
                 communication.setParam("CHECKCLIENTREPLY", cliDAO.checkClient((String) communication.getParam("nickName")));
-                System.out.print("count " + cliDAO.checkClient((String) communication.getParam("nickName")));
+                break;
+            case "CHECKCONTACT":
+                communication.setParam("CHECKCONTACTREPLY", contactDAO.checkContact((String) communication.getParam("nickName"), (String) communication.getParam("contactNickName")));
+                break;
+            case "SEARCHCONTACT":
+                communication.setParam("SEARCHCONTACTREPLY", contactDAO.search((String) communication.getParam("nickName")));
                 break;
             case "CREATEACCOUNT":
                 byte[] picture = (byte[]) communication.getParam("picture");
@@ -114,7 +123,7 @@ public class TreatConnection implements Runnable {
                 String name = (String) communication.getParam("name");
                 String nickName = (String) communication.getParam("nickName");
                 String password = (String) communication.getParam("password");
-                communication.setParam("CREATEACCOUNTREPLY",cliDAO.createAccount(picture,format,name,nickName,password));
+                communication.setParam("CREATEACCOUNTREPLY", cliDAO.createAccount(picture, format, name, nickName, password));
                 break;
             case "PROFILEIMAGE":
                 communication.setParam("PROFILEIMAGEREPLY", cliDAO.profilePic((String) communication.getParam("nickName")));

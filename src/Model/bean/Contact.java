@@ -13,8 +13,6 @@ import java.io.Serializable;
  */
 public class Contact implements Serializable {
     private String nome;
-    private String ultimaMsg;
-    private String date;
     private String nickName;
 
     public String getNickName() {
@@ -31,22 +29,6 @@ public class Contact implements Serializable {
 
     public void setNome(String nome) {
         this.nome = nome;
-    }
-
-    public String getUltimaMsg() {
-        return ultimaMsg;
-    }
-
-    public void setUltimaMsg(String ultimaMsg) {
-        this.ultimaMsg = ultimaMsg;
-    }
-
-    public String getDate() {
-        return date;
-    }
-
-    public void setDate(String date) {
-        this.date = date;
     }
 
 }

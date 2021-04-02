@@ -83,8 +83,6 @@ public class clientDAO {
         } catch (SQLException ex) {
             reply = ex.toString();
             Logger.getLogger(contactsListDAO.class.getName()).log(Level.SEVERE, null, ex);
-        } finally {
-            ConnectionFactory.closeConnection(con, stmt);
         }
         try {
             stmt = con.prepareStatement("INSERT INTO profilepicture (profilepicture.clienteId,profilepicture.picture,profilepicture.format) VALUES (?,?,?)");
@@ -96,8 +94,8 @@ public class clientDAO {
             Logger.getLogger(clientDAO.class.getName()).log(Level.SEVERE, null, ex);
         } catch (NullPointerException ex) {
             System.out.print("Sem envio de imagem");
-        } finally {
-            ConnectionFactory.closeConnection(con);
+        }  finally {
+            ConnectionFactory.closeConnection(con, stmt);
         }
         return reply;
     }

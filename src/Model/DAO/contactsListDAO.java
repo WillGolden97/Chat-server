@@ -37,15 +37,54 @@ public class contactsListDAO {
                 Contact c = new Contact();
                 c.setNickName(rs.getString("nickNameContato"));
                 c.setNome(rs.getString("contato"));
-                c.setUltimaMsg(rs.getString("Messages"));
-                c.setDate(rs.getString("Date"));
                 Contatos.add(c);
             }
         } catch (SQLException ex) {
             Logger.getLogger(contactsListDAO.class.getName()).log(Level.SEVERE, null, ex);
         } finally {
-            ConnectionFactory.closeConnection(con,stmt,rs);
+            ConnectionFactory.closeConnection(con, stmt, rs);
         }
         return Contatos;
+    }
+
+    public int checkContact(String contactNickName, String nickName) {
+        Connection con = ConnectionFactory.getConnection();
+        PreparedStatement stmt = null;
+        ResultSet rs;
+        int count = 1;
+        try {
+            stmt = con.prepareStatement("SELECT count(messages.Idmessage) as checkNickName FROM messages WHERE messages.MsgFrom = '"+nickName+"' AND messages.MsgTo = '"+contactNickName+"' OR messages.MsgFrom = '"+contactNickName+"' AND messages.MsgTo = '"+nickName+"'");
+            rs = stmt.executeQuery();
+            while (rs.next()) {
+                    count = rs.getInt("checkNickName");
+            }
+        } catch (SQLException ex) {
+            Logger.getLogger(contactsListDAO.class.getName()).log(Level.SEVERE, null, ex);
+        } finally {
+            ConnectionFactory.closeConnection(con, stmt);
+        }
+        return count;
+    }
+
+    public Contact search(String nickName) {
+
+        Connection con = ConnectionFactory.getConnection();
+
+        PreparedStatement stmt = null;
+        ResultSet rs = null;
+        Contact contact = new Contact();
+        try {
+            stmt = con.prepareStatement("SELECT * FROM clientes WHERE clientes.nickName LIKE '" + nickName + "'");
+            rs = stmt.executeQuery();
+            while (rs.next()) {
+                contact.setNickName(rs.getString("nickName"));
+                contact.setNome(rs.getString("nomeCliente"));
+            }
+        } catch (SQLException ex) {
+            Logger.getLogger(contactsListDAO.class.getName()).log(Level.SEVERE, null, ex);
+        } finally {
+            ConnectionFactory.closeConnection(con, stmt, rs);
+        }
+        return contact;
     }
 }

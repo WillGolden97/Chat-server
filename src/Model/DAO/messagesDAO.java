@@ -44,6 +44,7 @@ public class messagesDAO {
             rs = stmt.executeQuery();
             while (rs.next()) {
                 Message m = new Message();
+                m.setIdMessage(rs.getInt("Idmessage"));
                 m.setMessage(rs.getString("messages"));
                 m.setFrom(rs.getString("MsgFrom"));
                 m.setDate(rs.getString("HourMsg"));
@@ -53,8 +54,8 @@ public class messagesDAO {
             }
         } catch (SQLException ex) {
             Logger.getLogger(contactsListDAO.class.getName()).log(Level.SEVERE, null, ex);
-        }  finally {
-            ConnectionFactory.closeConnection(con,stmt);
+        } finally {
+            ConnectionFactory.closeConnection(con, stmt);
         }
         return Messages;
     }
@@ -72,32 +73,45 @@ public class messagesDAO {
         } catch (SQLException ex) {
             Logger.getLogger(contactsListDAO.class.getName()).log(Level.SEVERE, null, ex);
             setStatus(ex.toString());
-        }  finally {
-            ConnectionFactory.closeConnection(con,stmt);
         }
 
         try {
-            stmt = con.prepareStatement("INSERT into arquivos (nome,nomeHash,arquivo) VALUES (?,?,?)");
-            stmt.setString(1, m.getNomeArquivo());
-            stmt.setString(2, m.getHashArquivo());
-            stmt.setBytes(3, m.getArquivo());
+            stmt = con.prepareStatement("INSERT into arquivos (nomeHash,arquivo) VALUES (?,?)");
+            stmt.setString(1, m.getHashArquivo());
+            stmt.setBytes(2, m.getArquivo());
             stmt.executeUpdate();
             setStatus("Mensagem enviada com sucesso mensagem e seus respectivo anexo");
         } catch (SQLException | NullPointerException ex) {
             System.out.print(ex);
-        }  finally {
-            ConnectionFactory.closeConnection(con,stmt);
         }
         try {
-            stmt = con.prepareStatement("INSERT into anexo (arquivo,mensagem) VALUES (?,?)");
-            stmt.setString(1, m.getHashArquivo());
-            stmt.setInt(2, lastMessageId(m.getFrom()));
+            stmt = con.prepareStatement("INSERT into anexo (nome,arquivo,mensagem) VALUES (?,?,?)");
+            stmt.setString(1, m.getNomeArquivo());
+            stmt.setString(2, m.getHashArquivo());
+            stmt.setInt(3, lastMessageId(m.getFrom()));
             stmt.executeUpdate();
             setStatus("Mensagem enviada com sucesso mensagem e seus respectivo anexado");
         } catch (SQLException | NullPointerException ex) {
             System.out.print(ex);
         } finally {
-            ConnectionFactory.closeConnection(con,stmt);
+            ConnectionFactory.closeConnection(con, stmt);
+        }
+
+    }
+
+    public void delete(int id) {
+        Connection con = ConnectionFactory.getConnection();
+        PreparedStatement stmt = null;
+
+        try {
+            stmt = con.prepareStatement("DELETE FROM messages WHERE messages.Idmessage = '" + id + "'");
+            setStatus("Deletado com sucesso!");
+            stmt.executeUpdate();
+        } catch (SQLException ex) {
+            Logger.getLogger(contactsListDAO.class.getName()).log(Level.SEVERE, null, ex);
+            setStatus(ex.toString());
+        } finally {
+            ConnectionFactory.closeConnection(con, stmt);
         }
 
     }
@@ -117,7 +131,7 @@ public class messagesDAO {
         } catch (SQLException ex) {
             Logger.getLogger(messagesDAO.class.getName()).log(Level.SEVERE, null, ex);
         } finally {
-            ConnectionFactory.closeConnection(con,stmt,rs);
+            ConnectionFactory.closeConnection(con, stmt, rs);
         }
         return id;
     }
