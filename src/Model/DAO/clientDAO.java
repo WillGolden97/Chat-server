@@ -6,6 +6,7 @@
 package Model.DAO;
 
 import ConnectionFactory.ConnectionFactory;
+import Model.bean.Contact;
 import Model.bean.ProfilePic;
 import com.mysql.jdbc.exceptions.MySQLSyntaxErrorException;
 import java.sql.Connection;
@@ -94,8 +95,79 @@ public class clientDAO {
             Logger.getLogger(clientDAO.class.getName()).log(Level.SEVERE, null, ex);
         } catch (NullPointerException ex) {
             System.out.print("Sem envio de imagem");
-        }  finally {
+        } finally {
             ConnectionFactory.closeConnection(con, stmt);
+        }
+        return reply;
+    } 
+
+    public String editAccount(byte[] picture, String format, String name, String nickName, String password) {
+        String reply;
+        Connection con = ConnectionFactory.getConnection();
+        PreparedStatement stmt = null;
+        try {
+            stmt = con.prepareStatement("UPDATE clientes SET nomeCliente = ? WHERE nickName = ?");
+            stmt.setString(1, name);
+            stmt.setString(2, nickName);
+            stmt.executeUpdate();
+            reply = "NOME ATUALIZADO!";
+        } catch (NullPointerException ex) {
+            reply = ex.toString();
+        } catch (MySQLSyntaxErrorException ex) {
+            reply = ex.toString();
+            Logger.getLogger(contactsListDAO.class.getName()).log(Level.SEVERE, null, ex);
+        } catch (SQLException ex) {
+            reply = ex.toString();
+            Logger.getLogger(contactsListDAO.class.getName()).log(Level.SEVERE, null, ex);
+        }
+        try {
+            stmt = con.prepareStatement("UPDATE clientes SET senha = ? WHERE nickName = ?");
+            stmt.setString(1, password);
+            stmt.setString(2, nickName);
+            stmt.executeUpdate();
+            reply += "\nSENHA ATUALIZADA!";
+        } catch (MySQLSyntaxErrorException | NullPointerException ex) {
+            System.out.print("Sem troca de senha");
+        } catch (SQLException ex) {
+            System.out.print("Sem troca de senha");
+        }
+        int count = 2;
+        try {
+            ResultSet rs;
+            stmt = con.prepareStatement("SELECT count(profilepicture.clienteId) as countPic FROM profilepicture WHERE profilepicture.clienteId = '" + nickName + "'");
+            rs = stmt.executeQuery();
+            while (rs.next()) {
+                count = rs.getInt("countPic");
+            }
+        } catch (SQLException ex) {
+            Logger.getLogger(clientDAO.class.getName()).log(Level.SEVERE, null, ex);
+        }
+        if (count == 0) {
+            try {
+                stmt = con.prepareStatement("INSERT INTO profilepicture (profilepicture.clienteId,profilepicture.picture,profilepicture.format) VALUES (?,?,?)");
+                stmt.setString(1, nickName);
+                stmt.setBytes(2, picture);
+                stmt.setString(3, format);
+                stmt.executeUpdate();
+                reply += "\nFOTO INCLUÍDA!";
+            } catch (SQLException | NullPointerException ex) {
+                System.out.print("Sem envio de imagem");
+            } finally {
+                ConnectionFactory.closeConnection(con, stmt);
+            }
+        } else if (count == 1) {
+            try {
+                stmt = con.prepareStatement("UPDATE profilepicture SET picture = ?, format = ? WHERE clienteId = ?");
+                stmt.setBytes(1, picture);
+                stmt.setString(2, format);
+                stmt.setString(3, nickName);
+                stmt.executeUpdate();
+                reply += "\nFOTO ATUALIZADA!";
+            } catch (SQLException | NullPointerException ex) {
+                System.out.print("Sem envio de imagem");
+            } finally {
+                ConnectionFactory.closeConnection(con, stmt);
+            }
         }
         return reply;
     }

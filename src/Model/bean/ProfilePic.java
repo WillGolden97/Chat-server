@@ -12,8 +12,8 @@ import java.io.Serializable;
  * @author William
  */
 public class ProfilePic implements Serializable {
-    byte[] picture;
-    String format;
+    private byte[] picture;
+    private String format;
 
     public byte[] getPicture() {
         return picture;

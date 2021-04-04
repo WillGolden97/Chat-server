@@ -118,12 +118,20 @@ public class TreatConnection implements Runnable {
                 communication.setParam("SEARCHCONTACTREPLY", contactDAO.search((String) communication.getParam("nickName")));
                 break;
             case "CREATEACCOUNT":
-                byte[] picture = (byte[]) communication.getParam("picture");
-                String format = (String) communication.getParam("format");
-                String name = (String) communication.getParam("name");
-                String nickName = (String) communication.getParam("nickName");
-                String password = (String) communication.getParam("password");
-                communication.setParam("CREATEACCOUNTREPLY", cliDAO.createAccount(picture, format, name, nickName, password));
+                byte[] pictureC = (byte[]) communication.getParam("picture");
+                String formatC = (String) communication.getParam("format");
+                String nameC = (String) communication.getParam("name");
+                String nickNameC = (String) communication.getParam("nickName");
+                String passwordC = (String) communication.getParam("password");
+                communication.setParam("CREATEACCOUNTREPLY", cliDAO.createAccount(pictureC, formatC, nameC, nickNameC, passwordC));
+                break;
+            case "EDITACCOUNT":
+                byte[] pictureE = (byte[]) communication.getParam("picture");
+                String formatE = (String) communication.getParam("format");
+                String nameE = (String) communication.getParam("name");
+                String nickNameE = (String) communication.getParam("nickName");
+                String passwordE = (String) communication.getParam("password");
+                communication.setParam("EDITACCOUNTREPLY", cliDAO.editAccount(pictureE, formatE, nameE, nickNameE, passwordE));
                 break;
             case "PROFILEIMAGE":
                 communication.setParam("PROFILEIMAGEREPLY", cliDAO.profilePic((String) communication.getParam("nickName")));
