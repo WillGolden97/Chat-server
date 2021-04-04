@@ -70,6 +70,7 @@ public class messagesDAO {
             stmt.setString(2, m.getFrom());
             stmt.setString(3, m.getTo());
             stmt.executeUpdate();
+            setStatus("Mensagem enviada");
         } catch (SQLException ex) {
             Logger.getLogger(contactsListDAO.class.getName()).log(Level.SEVERE, null, ex);
             setStatus(ex.toString());
@@ -80,7 +81,7 @@ public class messagesDAO {
             stmt.setString(1, m.getHashArquivo());
             stmt.setBytes(2, m.getArquivo());
             stmt.executeUpdate();
-            setStatus("Mensagem enviada com sucesso mensagem e seus respectivo anexo");
+            setStatus("Mensagem enviada e seu arquivo anexado");
         } catch (SQLException | NullPointerException ex) {
             System.out.print(ex);
         }
@@ -90,7 +91,7 @@ public class messagesDAO {
             stmt.setString(2, m.getHashArquivo());
             stmt.setInt(3, lastMessageId(m.getFrom()));
             stmt.executeUpdate();
-            setStatus("Mensagem enviada com sucesso mensagem e seus respectivo anexado");
+            setStatus("Mensagem enviada e seu arquivo anexado");
         } catch (SQLException | NullPointerException ex) {
             System.out.print(ex);
         } finally {
