@@ -50,7 +50,7 @@ public class clientDAO {
         Connection con = ConnectionFactory.getConnection();
         PreparedStatement stmt = null;
         ResultSet rs;
-        int count = 1;
+        int count = 0;
         try {
             stmt = con.prepareStatement("SELECT COUNT(clientes.nickName) AS checkNickName  FROM clientes WHERE clientes.nickName LIKE '" + nickName + "'");
             rs = stmt.executeQuery();
