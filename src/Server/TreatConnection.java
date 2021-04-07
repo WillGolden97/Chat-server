@@ -34,10 +34,7 @@ public class TreatConnection implements Runnable {
 
     public void treatConnection(Socket socket) throws IOException, ClassNotFoundException {
 
-        try {
-
-            ObjectOutputStream outPut = new ObjectOutputStream(socket.getOutputStream());
-            ObjectInputStream input = new ObjectInputStream(socket.getInputStream());
+        try (ObjectOutputStream outPut = new ObjectOutputStream(socket.getOutputStream()); ObjectInputStream input = new ObjectInputStream(socket.getInputStream())) {
 
             System.out.println("Tratando...");
             States states = States.CONNECTED;
@@ -62,8 +59,7 @@ public class TreatConnection implements Runnable {
                 outPut.writeObject(communication);
                 outPut.flush();
             }
-            input.close();
-            outPut.close();
+
         } catch (IOException ex) {
             System.out.println("Problema no tratamento da conexão com o cliente: " + socket.getInetAddress());
             System.out.println("Erro: " + ex.getMessage());

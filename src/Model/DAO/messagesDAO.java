@@ -76,26 +76,30 @@ public class messagesDAO {
             setStatus(ex.toString());
         }
 
-        try {
-            stmt = con.prepareStatement("INSERT into arquivos (nomeHash,arquivo) VALUES (?,?)");
-            stmt.setString(1, m.getHashArquivo());
-            stmt.setBytes(2, m.getArquivo());
-            stmt.executeUpdate();
-            setStatus("Mensagem enviada e seu arquivo anexado");
-        } catch (SQLException | NullPointerException ex) {
-            System.out.print(ex);
+        if (m.getHashArquivo() != null) {
+            try {
+                stmt = con.prepareStatement("INSERT into arquivos (nomeHash,arquivo) VALUES (?,?)");
+                stmt.setString(1, m.getHashArquivo());
+                stmt.setBytes(2, m.getArquivo());
+                stmt.executeUpdate();
+                setStatus("Mensagem enviada e seu arquivo anexado");
+            } catch (SQLException ex) {
+                System.out.print(ex);
+            }
         }
-        try {
-            stmt = con.prepareStatement("INSERT into anexo (nome,arquivo,mensagem) VALUES (?,?,?)");
-            stmt.setString(1, m.getNomeArquivo());
-            stmt.setString(2, m.getHashArquivo());
-            stmt.setInt(3, lastMessageId(m.getFrom()));
-            stmt.executeUpdate();
-            setStatus("Mensagem enviada e seu arquivo anexado");
-        } catch (SQLException | NullPointerException ex) {
-            System.out.print(ex);
-        } finally {
-            ConnectionFactory.closeConnection(con, stmt);
+        if (m.getHashArquivo() != null) {
+            try {
+                stmt = con.prepareStatement("INSERT into anexo (nome,arquivo,mensagem) VALUES (?,?,?)");
+                stmt.setString(1, m.getNomeArquivo());
+                stmt.setString(2, m.getHashArquivo());
+                stmt.setInt(3, lastMessageId(m.getFrom()));
+                stmt.executeUpdate();
+                setStatus("Mensagem enviada e seu arquivo anexado");
+            } catch (SQLException ex) {
+                System.out.print(ex);
+            } finally {
+                ConnectionFactory.closeConnection(con, stmt);
+            }
         }
 
     }
