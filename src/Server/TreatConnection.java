@@ -27,6 +27,7 @@ import util.States;
 public class TreatConnection implements Runnable {
 
     private final Socket socket;
+    private States states = States.CONNECTED;
 
     public TreatConnection(Socket socket) {
         this.socket = socket;
@@ -37,7 +38,6 @@ public class TreatConnection implements Runnable {
         ObjectOutputStream outPut = new ObjectOutputStream(socket.getOutputStream());
 
         System.out.println("Tratando...");
-        States states = States.CONNECTED;
 
         try {
             while (states != States.EXIT) {
@@ -141,6 +141,10 @@ public class TreatConnection implements Runnable {
                 break;
             case "PROFILEIMAGE":
                 c.setParam("PROFILEIMAGEREPLY", cliDAO.profilePic((String) communication.getParam("nickName")));
+                break;
+            case "LOGOUT":
+                states = states.EXIT;
+                System.out.println("Deslogado!");
                 break;
             default:
                 break;
