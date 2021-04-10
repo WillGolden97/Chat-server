@@ -6,7 +6,6 @@
 package Model.DAO;
 
 import ConnectionFactory.ConnectionFactory;
-import Model.bean.Contact;
 import Model.bean.ProfilePic;
 import com.mysql.jdbc.exceptions.MySQLSyntaxErrorException;
 import java.sql.Connection;

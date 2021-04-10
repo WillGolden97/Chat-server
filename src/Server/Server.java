@@ -46,7 +46,7 @@ public class Server {
             while (true) {
                 Socket socket = server.waitConnection();
                 System.out.println("Cliente conectado!");
-                TreatConnection treatConnection = new TreatConnection(socket, server);
+                TreatConnection treatConnection = new TreatConnection(socket);
                 Thread t = new Thread(treatConnection);
                 t.start();
                 System.out.println("Cliente finalizado\n");

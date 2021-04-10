@@ -28,17 +28,18 @@ public class TreatConnection implements Runnable {
 
     private final Socket socket;
 
-    public TreatConnection(Socket socket, Server server) {
+    public TreatConnection(Socket socket) {
         this.socket = socket;
     }
 
     public void treatConnection(Socket socket) throws IOException, ClassNotFoundException {
+        ObjectInputStream input = new ObjectInputStream(socket.getInputStream());
+        ObjectOutputStream outPut = new ObjectOutputStream(socket.getOutputStream());
 
-        try (ObjectOutputStream outPut = new ObjectOutputStream(socket.getOutputStream()); ObjectInputStream input = new ObjectInputStream(socket.getInputStream())) {
+        System.out.println("Tratando...");
+        States states = States.CONNECTED;
 
-            System.out.println("Tratando...");
-            States states = States.CONNECTED;
-
+        try {
             while (states != States.EXIT) {
                 Communication communication = (Communication) input.readObject();
                 String operation = communication.getOperation();
@@ -59,7 +60,8 @@ public class TreatConnection implements Runnable {
                 outPut.writeObject(communication);
                 outPut.flush();
             }
-
+            input.close();
+            outPut.close();
         } catch (IOException ex) {
             System.out.println("Problema no tratamento da conexão com o cliente: " + socket.getInetAddress());
             System.out.println("Erro: " + ex.getMessage());
@@ -73,45 +75,53 @@ public class TreatConnection implements Runnable {
         clientDAO cliDAO = new clientDAO();
         arquivoDAO arqDAO = new arquivoDAO();
         contactsListDAO contactDAO = new contactsListDAO();
-        Communication comunic;
-
+        Communication c = new Communication(op + "REPLY");
         switch (op) {
             case "LOGIN":
                 String loginReply = cliDAO.authenticated((String) communication.getParam("nickName"), (String) communication.getParam("password"));
-                communication.setParam("LOGINREPLY", loginReply);
+                c.setParam("LOGINREPLY", loginReply);
                 System.out.println("login reply :" + loginReply);
                 break;
             case "READ":
                 contactsListDAO cDAO = new contactsListDAO();
-                communication.setParam("READREPLY", cDAO.read((String) communication.getParam("nickName")));
+                c.setParam("READREPLY", cDAO.read((String) communication.getParam("nickName")));
                 break;
+            case "MESSAGENOTRECEIVED": {
+                try {
+                    Thread.sleep(1000);
+                } catch (InterruptedException ex) {
+                    Logger.getLogger(TreatConnection.class.getName()).log(Level.SEVERE, null, ex);
+                }
+                c.setParam("MESSAGENOTRECEIVEDREPLY", mDAO.readNotReceived((String) communication.getParam("nickName"), (String) communication.getParam("contactNickName")));
+                break;
+            }
             case "MESSAGE":
                 List<Message> message = mDAO.read((String) communication.getParam("nickName"), (String) communication.getParam("contactNickName"));
-                communication.setParam("MESSAGEREPLY", message);
+                c.setParam("MESSAGEREPLY", message);
                 break;
             case "CREATEMESSAGE":
                 mDAO.create((Message) communication.getParam("SENDEDMESSAGE"));
-                communication.setParam("STATUSMESSAGE", mDAO.getStatus());
+                c.setParam("STATUSMESSAGE", mDAO.getStatus());
                 break;
             case "DELETEMESSAGE":
-                mDAO.delete((int) communication.getParam("idMessage"));
-                communication.setParam("STATUSMESSAGE", mDAO.getStatus());
+                mDAO.delete((int) communication.getParam("idMessage"), (String) communication.getParam("msgFrom"));
+                c.setParam("STATUSMESSAGE", mDAO.getStatus());
                 break;
             case "DOWNLOADFILE":
-                communication.setParam("DOWNLOADFILEREPLY", arqDAO.read((String) communication.getParam("nomeHash")));
+                c.setParam("DOWNLOADFILEREPLY", arqDAO.read((String) communication.getParam("nomeHash")));
                 break;
             case "CHECKFILE":
-                communication.setParam("CHECKFILEREPLY", arqDAO.checkFile((String) communication.getParam("nomeHash")));
+                c.setParam("CHECKFILEREPLY", arqDAO.checkFile((String) communication.getParam("nomeHash")));
                 System.out.print("count " + arqDAO.checkFile((String) communication.getParam("nomeHash")));
                 break;
             case "CHECKCLIENT":
-                communication.setParam("CHECKCLIENTREPLY", cliDAO.checkClient((String) communication.getParam("nickName")));
+                c.setParam("CHECKCLIENTREPLY", cliDAO.checkClient((String) communication.getParam("nickName")));
                 break;
             case "CHECKCONTACT":
-                communication.setParam("CHECKCONTACTREPLY", contactDAO.checkContact((String) communication.getParam("nickName"), (String) communication.getParam("contactNickName")));
+                c.setParam("CHECKCONTACTREPLY", contactDAO.checkContact((String) communication.getParam("nickName"), (String) communication.getParam("contactNickName")));
                 break;
             case "SEARCHCONTACT":
-                communication.setParam("SEARCHCONTACTREPLY", contactDAO.search((String) communication.getParam("nickName")));
+                c.setParam("SEARCHCONTACTREPLY", contactDAO.search((String) communication.getParam("nickName")));
                 break;
             case "CREATEACCOUNT":
                 byte[] pictureC = (byte[]) communication.getParam("picture");
@@ -119,7 +129,7 @@ public class TreatConnection implements Runnable {
                 String nameC = (String) communication.getParam("name");
                 String nickNameC = (String) communication.getParam("nickName");
                 String passwordC = (String) communication.getParam("password");
-                communication.setParam("CREATEACCOUNTREPLY", cliDAO.createAccount(pictureC, formatC, nameC, nickNameC, passwordC));
+                c.setParam("CREATEACCOUNTREPLY", cliDAO.createAccount(pictureC, formatC, nameC, nickNameC, passwordC));
                 break;
             case "EDITACCOUNT":
                 byte[] pictureE = (byte[]) communication.getParam("picture");
@@ -127,16 +137,15 @@ public class TreatConnection implements Runnable {
                 String nameE = (String) communication.getParam("name");
                 String nickNameE = (String) communication.getParam("nickName");
                 String passwordE = (String) communication.getParam("password");
-                communication.setParam("EDITACCOUNTREPLY", cliDAO.editAccount(pictureE, formatE, nameE, nickNameE, passwordE));
+                c.setParam("EDITACCOUNTREPLY", cliDAO.editAccount(pictureE, formatE, nameE, nickNameE, passwordE));
                 break;
             case "PROFILEIMAGE":
-                communication.setParam("PROFILEIMAGEREPLY", cliDAO.profilePic((String) communication.getParam("nickName")));
+                c.setParam("PROFILEIMAGEREPLY", cliDAO.profilePic((String) communication.getParam("nickName")));
                 break;
             default:
                 break;
         }
-        comunic = communication;
-        return comunic;
+        return c;
     }
 
     private void closeSocket(Socket s) throws IOException {

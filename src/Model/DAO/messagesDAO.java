@@ -7,6 +7,7 @@ package Model.DAO;
 
 import ConnectionFactory.ConnectionFactory;
 import Model.bean.Message;
+import com.mysql.jdbc.exceptions.MySQLSyntaxErrorException;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
@@ -35,12 +36,11 @@ public class messagesDAO {
     public List<Message> read(String nickName, String contactNickName) {
 
         Connection con = ConnectionFactory.getConnection();
-
         PreparedStatement stmt = null;
         ResultSet rs;
         List<Message> Messages = new ArrayList<>();
         try {
-            stmt = con.prepareStatement("call messagesWithAnexos('" + nickName + "','" + contactNickName + "')");
+            stmt = con.prepareStatement("call messagesWithAttachment('" + nickName + "','" + contactNickName + "')");
             rs = stmt.executeQuery();
             while (rs.next()) {
                 Message m = new Message();
@@ -55,6 +55,59 @@ public class messagesDAO {
         } catch (SQLException ex) {
             Logger.getLogger(contactsListDAO.class.getName()).log(Level.SEVERE, null, ex);
         } finally {
+            ConnectionFactory.closeConnection(con, stmt);
+        }
+        return Messages;
+    }
+
+    public List<Message> readNotReceived(String nickName, String contactNickName) {
+
+        Connection con = ConnectionFactory.getConnection();
+        PreparedStatement stmt = null;
+        ResultSet rs;
+        List<Message> Messages = null;
+        int id = 0;
+        try {
+            stmt = con.prepareStatement("SELECT COUNT(Idmessage) AS contMSg FROM messages WHERE Messages.MsgFrom = '" + contactNickName + "' AND received = 0");
+            rs = stmt.executeQuery();
+
+            while (rs.next()) {
+                id = rs.getInt("contMSg");
+            }
+        } catch (SQLException ex) {
+            Logger.getLogger(messagesDAO.class.getName()).log(Level.SEVERE, null, ex);
+        }
+        if (id != 0) {
+            Messages = new ArrayList<>();
+            try {
+                stmt = con.prepareStatement("call messagesWithAttachment('" + nickName + "','" + contactNickName + "')");
+                rs = stmt.executeQuery();
+                while (rs.next()) {
+                    Message m = new Message();
+                    m.setIdMessage(rs.getInt("Idmessage"));
+                    m.setMessage(rs.getString("messages"));
+                    m.setFrom(rs.getString("MsgFrom"));
+                    m.setDate(rs.getString("HourMsg"));
+                    m.setNomeArquivo(rs.getString("nomeArquivo"));
+                    m.setHashArquivo(rs.getString("hashArquivo"));
+                    Messages.add(m);
+                }
+            } catch (SQLException ex) {
+                Logger.getLogger(contactsListDAO.class.getName()).log(Level.SEVERE, null, ex);
+            }
+            try {
+                stmt = con.prepareStatement("UPDATE messages SET received = ? WHERE msgFrom = ?");
+                stmt.setInt(1, 1);
+                stmt.setString(2, contactNickName);
+                stmt.executeUpdate();
+            } catch (MySQLSyntaxErrorException ex) {
+                Logger.getLogger(contactsListDAO.class.getName()).log(Level.SEVERE, null, ex);
+            } catch (SQLException ex) {
+                Logger.getLogger(contactsListDAO.class.getName()).log(Level.SEVERE, null, ex);
+            } finally {
+                ConnectionFactory.closeConnection(con, stmt);
+            }
+        } else {
             ConnectionFactory.closeConnection(con, stmt);
         }
         return Messages;
@@ -97,14 +150,23 @@ public class messagesDAO {
                 setStatus("Mensagem enviada e seu arquivo anexado");
             } catch (SQLException ex) {
                 System.out.print(ex);
-            } finally {
-                ConnectionFactory.closeConnection(con, stmt);
             }
         }
-
+        try {
+            stmt = con.prepareStatement("UPDATE messages SET received = ? WHERE msgFrom = ?");
+            stmt.setInt(1, 0);
+            stmt.setString(2, m.getFrom());
+            stmt.executeUpdate();
+        } catch (MySQLSyntaxErrorException ex) {
+            Logger.getLogger(contactsListDAO.class.getName()).log(Level.SEVERE, null, ex);
+        } catch (SQLException ex) {
+            Logger.getLogger(contactsListDAO.class.getName()).log(Level.SEVERE, null, ex);
+        } finally {
+            ConnectionFactory.closeConnection(con, stmt);
+        }
     }
 
-    public void delete(int id) {
+    public void delete(int id, String nickName) {
         Connection con = ConnectionFactory.getConnection();
         PreparedStatement stmt = null;
 
@@ -115,10 +177,19 @@ public class messagesDAO {
         } catch (SQLException ex) {
             Logger.getLogger(contactsListDAO.class.getName()).log(Level.SEVERE, null, ex);
             setStatus(ex.toString());
+        }
+        try {
+            stmt = con.prepareStatement("UPDATE messages SET received = ? WHERE msgFrom = ?");
+            stmt.setInt(1, 0);
+            stmt.setString(2, nickName);
+            stmt.executeUpdate();
+        } catch (MySQLSyntaxErrorException ex) {
+            Logger.getLogger(contactsListDAO.class.getName()).log(Level.SEVERE, null, ex);
+        } catch (SQLException ex) {
+            Logger.getLogger(contactsListDAO.class.getName()).log(Level.SEVERE, null, ex);
         } finally {
             ConnectionFactory.closeConnection(con, stmt);
         }
-
     }
 
     public int lastMessageId(String nickName) {
