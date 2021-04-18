@@ -95,6 +95,15 @@ public class TreatConnection implements Runnable {
                 c.setParam("MESSAGENOTRECEIVEDREPLY", mDAO.readNotReceived((String) communication.getParam("nickName"), (String) communication.getParam("contactNickName")));
                 break;
             }
+            case "MESSAGENOTRECEIVEDALLCONTACTS": {
+                try {
+                    Thread.sleep(1000);
+                } catch (InterruptedException ex) {
+                    Logger.getLogger(TreatConnection.class.getName()).log(Level.SEVERE, null, ex);
+                }
+                c.setParam("MESSAGENOTRECEIVEDALLCONTACTSREPLY", mDAO.readNotReceivedAllContacts((String) communication.getParam("nickName")));
+                break;
+            }
             case "MESSAGE":
                 List<Message> message = mDAO.read((String) communication.getParam("nickName"), (String) communication.getParam("contactNickName"));
                 c.setParam("MESSAGEREPLY", message);
@@ -104,7 +113,7 @@ public class TreatConnection implements Runnable {
                 c.setParam("STATUSMESSAGE", mDAO.getStatus());
                 break;
             case "DELETEMESSAGE":
-                mDAO.delete((int) communication.getParam("idMessage"), (String) communication.getParam("msgFrom"));
+                mDAO.delete((int) communication.getParam("idMessage"), (String) communication.getParam("msgFrom"), (String) communication.getParam("msgTo"));
                 c.setParam("STATUSMESSAGE", mDAO.getStatus());
                 break;
             case "DOWNLOADFILE":
