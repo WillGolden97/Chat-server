@@ -97,7 +97,7 @@ public class TreatConnection implements Runnable {
             }
             case "MESSAGENOTRECEIVEDALLCONTACTS": {
                 try {
-                    Thread.sleep(1000);
+                    Thread.sleep(2000);
                 } catch (InterruptedException ex) {
                     Logger.getLogger(TreatConnection.class.getName()).log(Level.SEVERE, null, ex);
                 }
