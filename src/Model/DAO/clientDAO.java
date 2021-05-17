@@ -90,10 +90,8 @@ public class clientDAO {
             stmt.setBytes(2, picture);
             stmt.setString(3, format);
             stmt.executeUpdate();
-        } catch (SQLException ex) {
-            Logger.getLogger(clientDAO.class.getName()).log(Level.SEVERE, null, ex);
-        } catch (NullPointerException ex) {
-            System.out.print("Sem envio de imagem");
+        } catch (SQLException | NullPointerException ex) {
+            System.out.println("Sem envio de imagem");
         } finally {
             ConnectionFactory.closeConnection(con, stmt);
         }

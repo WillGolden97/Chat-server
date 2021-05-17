@@ -12,7 +12,6 @@ import java.util.Map;
 public class Communication implements Serializable {
 
     private String operation;
-    private Status status;
 
     Map<String, Object> params;
 
@@ -27,14 +26,6 @@ public class Communication implements Serializable {
 
     public String getOperation() {
         return operation;
-    }
-
-    public void setStatus(Status s) {
-        this.status = s;
-    }
-
-    public Status getStatus() {
-        return status;
     }
 
     public void setParam(String chave, Object valor) {
